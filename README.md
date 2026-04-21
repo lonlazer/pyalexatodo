@@ -1,4 +1,14 @@
 # pyalexatodo
+[![Publish to PyPI](https://github.com/lonlazer/pyalexatodo/workflows/Publish%20to%20PyPI/badge.svg)](https://github.com/lonlazer/pyalexatodo/actions?query=workflow:"Publish+to+PyPI")
+![GitHub branch check runs](https://img.shields.io/github/check-runs/lonlazer/pyalexatodo/main)
+[![GitHub release](https://img.shields.io/github/release/lonlazer/pyalexatodo?include_prereleases=&sort=semver&color=blue)](https://github.com/lonlazer/pyalexatodo/releases/)
+[![License](https://img.shields.io/badge/License-GPLv3-blue)](#license)
+[![issues - pyalexatodo](https://img.shields.io/github/issues/lonlazer/pyalexatodo)](https://github.com/lonlazer/pyalexatodo/issues)
+[![ruff](https://img.shields.io/badge/code_style-ruff-black
+)](https://docs.astral.sh/ruff/)
+[![Go to Python website](https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2Flonlazer%2Fpyalexatodo%2Frefs%2Fheads%2Fmain%2Fpyproject.toml&query=project.requires-python&label=python&logo=python&logoColor=white)](https://python.org)
+
+
 An unofficial Python library (and optional CLI) for Alexa to-do and shopping lists.
 API reverse-engineered by intercepting the Alexa mobile app's HTTP traffic.
 
