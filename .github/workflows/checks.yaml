@@ -1,0 +1,36 @@
+name: Run checks on PRs
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  checks:
+    name: python
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: "Set up Python"
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: ".python-version"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Install the project
+        run: uv sync --locked --dev --all-extras
+
+      - name: Run ruff linter
+        run: uv run ruff check --output-format=github .
+
+      - name: Run ty type checker
+        run: uv run ty check --output-format=github .
+
+      - name: Run tests
+        # For example, using `pytest`
+        run: uv run pytest tests
