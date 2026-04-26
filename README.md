@@ -1,7 +1,7 @@
 # pyalexatodo
+![PyPI - Version](https://img.shields.io/pypi/v/pyalexatodo?logo=pypy&color=blue&link=https%3A%2F%2Fpypi.org%2Fproject%2Fpyalexatodo%2F)
 [![Publish to PyPI](https://github.com/lonlazer/pyalexatodo/workflows/Publish%20to%20PyPI/badge.svg)](https://github.com/lonlazer/pyalexatodo/actions?query=workflow:"Publish+to+PyPI")
-![GitHub branch check runs](https://img.shields.io/github/check-runs/lonlazer/pyalexatodo/main)
-[![GitHub release](https://img.shields.io/github/release/lonlazer/pyalexatodo?include_prereleases=&sort=semver&color=blue)](https://github.com/lonlazer/pyalexatodo/releases/)
+[![Run checks on PRs](https://github.com/lonlazer/pyalexatodo/actions/workflows/checks.yaml/badge.svg)](https://github.com/lonlazer/pyalexatodo/actions/workflows/checks.yaml)
 [![License](https://img.shields.io/badge/License-GPLv3-blue)](#license)
 [![issues - pyalexatodo](https://img.shields.io/github/issues/lonlazer/pyalexatodo)](https://github.com/lonlazer/pyalexatodo/issues)
 [![ruff](https://img.shields.io/badge/code_style-ruff-black
