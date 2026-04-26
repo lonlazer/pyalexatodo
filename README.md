@@ -1,5 +1,5 @@
 # pyalexatodo
-![PyPI - Version](https://img.shields.io/pypi/v/pyalexatodo?logo=pypy&color=blue&link=https%3A%2F%2Fpypi.org%2Fproject%2Fpyalexatodo%2F)
+[![PyPI - Version](https://img.shields.io/pypi/v/pyalexatodo?logo=pypy&color=blue&link=https%3A%2F%2Fpypi.org%2Fproject%2Fpyalexatodo%2F)](https://pypi.org/project/pyalexatodo/)
 [![Publish to PyPI](https://github.com/lonlazer/pyalexatodo/workflows/Publish%20to%20PyPI/badge.svg)](https://github.com/lonlazer/pyalexatodo/actions?query=workflow:"Publish+to+PyPI")
 [![Run checks on PRs](https://github.com/lonlazer/pyalexatodo/actions/workflows/checks.yaml/badge.svg)](https://github.com/lonlazer/pyalexatodo/actions/workflows/checks.yaml)
 [![License](https://img.shields.io/badge/License-GPLv3-blue)](#license)
@@ -23,7 +23,7 @@ __Disclaimer__: This is an unofficial integration and is not created, endorsed, 
 
 ## Installation
 
-Install from PyPI:
+Install from [PyPI](https://pypi.org/project/pyalexatodo/):
 
 ```bash
 pip install pyalexatodo
