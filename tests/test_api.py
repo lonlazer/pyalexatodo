@@ -9,6 +9,7 @@ from pyalexatodo.models.list_item import ListItem
 from pyalexatodo.models.list_type import ListType
 from pyalexatodo.models.list_item_status import ListItemStatus
 from pyalexatodo.exceptions import ItemNotFoundException
+from pyalexatodo.models.list_items_response import ListItemsResponse
 
 class FakeAlexaApiServer:
     def __init__(self):
@@ -19,8 +20,9 @@ class FakeAlexaApiServer:
                      listType=ListType.TODO),
             ListInfo(listId="list3",
                      listType=ListType.CUSTOM,
-                     listName="Places to Visit")  # ty:ignore[unknown-argument]
-            
+                     listName="Places to Visit"),  # ty:ignore[unknown-argument]
+            ListInfo(listId="list4",
+                     listType=ListType.SHOP)
         ]
         self.items: dict[str, list[ListItem]] = {
             "list1": [
@@ -47,7 +49,14 @@ class FakeAlexaApiServer:
                          itemStatus=ListItemStatus.COMPLETE,
                          version=1)
             ],
-            "list3": []
+            "list3": [],
+            "list4": [
+                ListItem(itemId=f"item{i}",
+                         itemName=f"Item {i}",
+                         itemStatus=ListItemStatus.ACTIVE,
+                         version=1)
+                for i in range(250)
+            ]
         }
         self.fail_next = False
 
@@ -65,9 +74,24 @@ class FakeAlexaApiServer:
             return web.Response(status=500)
         list_id = request.match_info['list_id']
         items = self.items.get(list_id, [])
-        return web.json_response({
-            "itemInfoList": [i.model_dump(by_alias=True, mode='json') for i in items]
-        })
+
+        limit = int(request.query.get('limit', 100))
+
+        if limit > 100:
+            return web.Response(status=400)
+
+        body = await request.json()
+        next_token = body.get('nextToken')
+        start_idx = int(next_token) if next_token else 0
+        end_idx = start_idx + limit
+        batch = items[start_idx:end_idx]
+
+        response = ListItemsResponse(
+            itemInfoList=batch,
+            nextToken=str(end_idx) if end_idx < len(items) else None
+        )
+
+        return web.json_response(response.model_dump(by_alias=True, mode='json'))
 
     async def add_item(self, request):
         if self.fail_next:
@@ -151,13 +175,14 @@ async def api(aiohttp_client, fake_alexa):
 @pytest.mark.asyncio
 async def test_get_lists_success(api):
     lists = await api.get_lists()
-    assert len(lists) == 3
+    assert len(lists) == 4
     assert lists[0].id == "list1"
     assert lists[0].name == "Shop"
     assert lists[1].id == "list2"
     assert lists[1].name == "Todo"
     assert lists[2].id == "list3"
     assert lists[2].name == "Places to Visit"
+    assert lists[3].id == "list4"
 
 @pytest.mark.asyncio
 async def test_get_lists_failure(api, fake_alexa):
@@ -184,6 +209,27 @@ async def test_get_list_items_failure(api, fake_alexa):
     fake_alexa.fail_next = True
     with pytest.raises(Exception, match="Failed to fetch list items for list: list1"):
         await api.get_list_items("list1")
+
+@pytest.mark.asyncio
+async def test_get_list_items_batched_success(api):
+    batches = []
+    async for batch in api.get_list_items_batched("list4"):
+        batches.append(batch)
+    
+    assert len(batches) == 3
+    assert len(batches[0]) == 100
+    assert len(batches[1]) == 100
+    assert len(batches[2]) == 50
+    assert batches[0][0].id == "item0"
+    assert batches[1][0].id == "item100"
+    assert batches[2][-1].id == "item249"
+
+@pytest.mark.asyncio
+async def test_get_list_items_batched_failure(api, fake_alexa):
+    fake_alexa.fail_next = True
+    with pytest.raises(Exception, match="Failed to fetch list items for list: list1"):
+        async for _ in api.get_list_items_batched("list1"):
+            pass
 
 @pytest.mark.asyncio
 async def test_set_item_checked_status_success(api, fake_alexa):

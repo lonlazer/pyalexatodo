@@ -1,5 +1,5 @@
 from http import HTTPMethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, AsyncGenerator
 
 from aioamazondevices.api import AmazonEchoApi
 
@@ -79,7 +79,7 @@ class AlexaToDoAPI:
 
         return list_infos.listInfoList
 
-    async def get_list_items(self, list_id: str) -> ListInfo[ListItem]:
+    async def get_list_items(self, list_id: str) -> list[ListItem]:
         """Fetch all items from a specified Alexa shopping list.
 
         Args:
@@ -104,6 +104,48 @@ class AlexaToDoAPI:
         list_items = ListItemsResponse(**result_json)
 
         return list_items.itemInfoList
+
+    async def get_list_items_batched(
+        self,
+        list_id: str,
+        batch_size: int = 100,
+    ) -> AsyncGenerator[list[ListItem], None]:
+        """Fetch all items from a specified Alexa shopping list in batches.
+
+        Args:
+            list_id: The ID of the list to fetch items from.
+            batch_size: The number of items to fetch in each batch.
+                        Defaults to 100 which is the maximum allowed by the API.
+
+        Yields:
+            A list of shopping list items (batch).
+
+        Raises:
+            Exception: If the API request fails.
+        """
+        next_token: str | None = None
+
+        while True:
+            url = f"{self._base_url}/alexashoppinglists/api/v2/lists/{list_id}/items/fetch?limit={batch_size}"
+
+            result = await self._http_request(
+                HTTPMethod.POST,
+                url,
+                {"nextToken": next_token} if next_token else {},
+            )
+
+            # TODO: Remove this, as session_request will raise an exception if the request fails, also update the docstrings
+            if not result or result.status != 200:
+                raise Exception(f"Failed to fetch list items for list: {list_id}")
+
+            result_json = await result.json()
+            list_items = ListItemsResponse(**result_json)
+
+            yield list_items.itemInfoList
+
+            next_token = list_items.nextToken
+            if not next_token:
+                break
 
     async def set_item_checked_status(
         self, list_id: str, item_id: str, checked: bool, version: int
