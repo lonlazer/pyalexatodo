@@ -76,7 +76,12 @@ class FakeAlexaApiServer:
         items = self.items.get(list_id, [])
 
         limit = int(request.query.get('limit', 100))
-        next_token = request.query.get('nextToken')
+
+        if limit > 100:
+            return web.Response(status=400)
+
+        body = await request.json()
+        next_token = body.get('nextToken')
         start_idx = int(next_token) if next_token else 0
         end_idx = start_idx + limit
         batch = items[start_idx:end_idx]
