@@ -98,6 +98,10 @@ async def main():
         items = await todo_api.get_list_items(lists[0].id)
         print(f"Items: {[i.name for i in items]}")
 
+        # Get items in batches (necessary for lists with more than 100 items)
+        async for batch in todo_api.get_list_items_batched(lists[0].id):
+            print(f"Batch: {[i.name for i in batch]}")
+
 asyncio.run(main())
 ```
 
@@ -127,6 +131,13 @@ uv build
 
 Contributions are welcome! Please follow the conventional commit format prepended by a [Gitmoji](https://gitmoji.dev/) for commit messages.
 Make sure everything is formatted using ruff and pytest, ty, ruff checks are passing.
+
+You can use them as command-line tools or via their VS Code extensions. 
+These checks will be enforced by CI/CD as well.
+```bash
+uv run ruff check
+uv run ty check
+```
 
 ## Credits
 - [aioamazondevices](https://github.com/chemelli74/aioamazondevices): This library is used for logging in and making authentified API calls to Amazon.
