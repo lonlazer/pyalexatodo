@@ -79,11 +79,13 @@ class AlexaToDoAPI:
 
         return list_infos.listInfoList
 
-    async def get_list_items(self, list_id: str) -> list[ListItem]:
+    async def get_list_items(self, list_id: str, limit: int = 100) -> list[ListItem]:
         """Fetch all items from a specified Alexa shopping list.
 
         Args:
             list_id: The ID of the list to fetch items from.
+            limit: The number of items to fetch in each batch.
+                   Defaults to 100 which is the maximum allowed by the API.
 
         Returns:
             A list of shopping list items.
@@ -91,9 +93,26 @@ class AlexaToDoAPI:
         Raises:
             Exception: If the API request fails.
         """
+        list_items, _ = await self.get_list_items_check_has_more(list_id, limit)
+        return list_items
+
+    async def get_list_items_check_has_more(self, list_id: str, limit: int = 100) -> tuple[list[ListItem], bool]:
+        """Fetch all items from a specified Alexa shopping list.
+
+        Args:
+            list_id: The ID of the list to fetch items from.
+            limit: The number of items to fetch in each batch.
+                   Defaults to 100 which is the maximum allowed by the API.
+
+        Returns:
+            A tuple of the list of shopping list items and a boolean indicating whether there are more items.
+
+        Raises:
+            Exception: If the API request fails.
+        """
         result = await self._http_request(
             HTTPMethod.POST,
-            f"{self._base_url}/alexashoppinglists/api/v2/lists/{list_id}/items/fetch?limit=100",
+            f"{self._base_url}/alexashoppinglists/api/v2/lists/{list_id}/items/fetch?limit={limit}",
             {},
         )
 
@@ -103,7 +122,8 @@ class AlexaToDoAPI:
         result_json = await result.json()
         list_items = ListItemsResponse(**result_json)
 
-        return list_items.itemInfoList
+        return list_items.itemInfoList, list_items.nextToken is not None
+    
 
     async def get_list_items_batched(
         self,
