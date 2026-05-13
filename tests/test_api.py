@@ -211,6 +211,24 @@ async def test_get_list_items_failure(api, fake_alexa):
         await api.get_list_items("list1")
 
 @pytest.mark.asyncio
+async def test_get_list_items_check_has_more_true(api):
+    items, has_more = await api.get_list_items_check_has_more("list4")
+    assert len(items) == 100
+    assert has_more is True
+
+@pytest.mark.asyncio
+async def test_get_list_items_check_has_more_false(api):
+    items, has_more = await api.get_list_items_check_has_more("list1")
+    assert len(items) == 3
+    assert has_more is False
+
+@pytest.mark.asyncio
+async def test_get_list_items_check_has_more_failure(api, fake_alexa):
+    fake_alexa.fail_next = True
+    with pytest.raises(Exception, match="Failed to fetch list items for list: list1"):
+        await api.get_list_items_check_has_more("list1")
+
+@pytest.mark.asyncio
 async def test_get_list_items_batched_success(api):
     batches = []
     async for batch in api.get_list_items_batched("list4"):
